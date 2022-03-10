@@ -26,7 +26,7 @@ class Hud(pygame.sprite.Sprite):
         self.health_bar_1 = pygame.Surface((w, 30))
 
         self.health_bar.fill('green')
-        self.health_bar_1.fill('red')
+        self.health_bar_1.fill('green')
 
         self.image.blit(self.health_bar, (0, 0, 500, 50))
         self.image.blit(self.health_bar_1, (500 - w, 0, 500, 50))
@@ -88,7 +88,6 @@ class Hud(pygame.sprite.Sprite):
         :return: None
         """
         if not self.end:
-            # self.sound_3.play()
             p = self.p_2 if h1 == 0 else self.p_1
             sound = pygame.mixer.Sound(Path('content', 'sound', f'{p}win.mp3'))
             sound.set_volume(s.get_sound())
@@ -98,11 +97,11 @@ class Hud(pygame.sprite.Sprite):
     def __health_bar(self, health: int, pos: bool = False) -> None:
         w = int(500 * health / 100)
         if w >= 0:
-            self.health_bar_1 = pygame.Surface((w, 30))
-            self.health_bar_1.fill('green')
+            health_bar = pygame.Surface((w, 30), flags=pygame.SRCALPHA)
+            health_bar.fill('green')
             if pos:
-                self.image.blit(self.health_bar_1, (self.w - w - 40, 0, 500, 50))
+                self.image.blit(health_bar, (self.w - w - 40, 0, 500, 50))
                 self.image.blit(self.name_2, (self.w - self.name_2.get_width() - 40, 20))
             else:
-                self.image.blit(self.health_bar, (0, 0, 500, 50))
+                self.image.blit(health_bar, (0, 0, 500, 50))
                 self.image.blit(self.name_1, (0, 20))
