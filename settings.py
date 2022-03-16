@@ -8,7 +8,7 @@ class Settings:
 
         # player
         self.speed = 7
-        self.jump = 14
+        self.jump = 15
         self.width_jump = 8
         self.size_c = 2.5
         self.anim = 0.4
