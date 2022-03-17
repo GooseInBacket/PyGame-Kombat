@@ -33,16 +33,19 @@ class Player(pygame.sprite.Sprite):
         self.new_anim = True
 
         self.control = control
-        self.stay = True
-        self.block = False
-        self.punch = False
-        self.kick = False
-        self.kickh = False
-        self.left = False
-        self.right = False
-        self.duck = False
-        self.jump = False
-        self.jump_over = False
+        self.__upd_state()
+        # self.stay = True
+        # self.block = False
+        # self.punch = False
+        # self.kick = False
+        # self.flykick = False
+        # self.kickh = False
+        # self.left = False
+        # self.right = False
+        # self.duck = False
+        # self.jump = False
+        # self.fall = False
+        # self.jump_over = False
 
         self.cooldown = 0
         self.jumpCount = s.jump
@@ -52,6 +55,21 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.__button_pressing()
         self.__reactions()
+
+    def __upd_state(self):
+        self.stay = True
+        self.block = False
+        self.punch = False
+        self.kick = False
+        self.flykick = False
+        self.kickh = False
+        self.left = False
+        self.right = False
+        self.duck = False
+        self.jump = False
+        self.fall = False
+        self.on_floor = False
+        self.jump_over = False
 
     def __button_pressing(self):
         keys = pygame.key.get_pressed()
@@ -80,9 +98,11 @@ class Player(pygame.sprite.Sprite):
         if not keys[pygame.K_a] and self.control:
             self.left = False
             self.stay = True
+
         if not keys[pygame.K_d] and self.control:
             self.right = False
             self.stay = True
+
         if not keys[pygame.K_SPACE] and self.control:
             self.block = False
 
@@ -123,6 +143,12 @@ class Player(pygame.sprite.Sprite):
             self.__animation('Block', once=True)
             self.jump = False
 
+        elif self.fall:
+            self.__make_fall()
+
+        elif self.on_floor:
+            self.__stand_up()
+
         elif self.jump:
             self.__jump()
 
@@ -152,8 +178,13 @@ class Player(pygame.sprite.Sprite):
         self.frameRate += speed
         self.frameRate %= length
 
-        old_rect = self.rect.bottomleft if not self.flip else self.rect.topright
-        count = -int(self.frameRate) if reverse else int(self.frameRate) if frame is None else frame
+        old_rect = self.rect.bottomleft if not self.flip else self.rect.bottomright
+        if self.flip and anim not in ('Kick', 'KickHead', 'Punch', 'Dead', 'Up'):
+            count = int(self.frameRate) if reverse else -int(
+                self.frameRate) if frame is None else frame
+        else:
+            count = -int(self.frameRate) if reverse else int(
+                self.frameRate) if frame is None else frame
 
         self.frame = self.sprites[anim][count]
         self.image = pygame.Surface((self.frame.get_width(), self.frame.get_height()))
@@ -162,7 +193,7 @@ class Player(pygame.sprite.Sprite):
         if not self.flip:
             self.rect.bottomleft = old_rect
         else:
-            self.rect.topright = old_rect
+            self.rect.bottomright = old_rect
 
         self.image.fill('green')
         self.image.set_colorkey('green')
@@ -223,17 +254,49 @@ class Player(pygame.sprite.Sprite):
             self.jump_over = True
             self.rect.y -= int((self.jumpCount * abs(self.jumpCount)) * 0.3)
             self.jumpCount -= 1
-            self.__animation('JumpOver', 0.7, reverse=reverse)
+            if self.kick:
+                self.flykick = True
+                self.__animation('FlyKick', 0.7)
+            else:
+                self.__animation('JumpOver', 0.7, reverse=reverse)
             if reverse:
                 self.rect.x -= 10
             else:
                 self.rect.x += 10
         else:
             self.left = self.right = self.jump_over = self.jump = False
-            self.punch = self.kick = self.kickh = False
+            self.punch = self.kick = self.kickh = self.flykick = False
             self.jumpCount = s.jump
             self.cooldown = time()
             self.control = True
+
+    def __make_fall(self, name: str = 'Dead'):
+        print(self.new_anim)
+        if self.new_anim:
+            self.frameRate = 0
+            self.new_anim = False
+            self.cooldown = time()
+        print(self.frameRate, self.new_anim)
+        if self.__animation(name, 0.5, once=True):
+            if name == 'Dead' and time() - self.cooldown > 0.5:
+                self.fall = False
+                self.on_floor = True
+                self.new_anim = True
+                self.cooldown = time()
+            elif name != 'Dead':
+                self.fall = False
+                self.new_anim = True
+        else:
+            if name == 'Dead':
+                self.rect.x += 20
+
+    def __stand_up(self):
+        if self.new_anim:
+            self.frameRate = 0
+            self.new_anim = False
+        if self.__animation('Up', 0.5, once=True):
+            self.on_floor = False
+            self.new_anim = True
 
     def get_pos(self):
         return self.rect.center
@@ -244,21 +307,27 @@ class Player(pygame.sprite.Sprite):
     def get_height(self):
         return self.image.get_height()
 
-    def get_punch(self, n: int):
+    def get_punch(self, n: int, crit: bool = False):
         if self.block:
             self.block_s.play()
             self.health -= 5
-        else:
+        elif crit and not self.block:
             self.health -= n
             self.hit_s.play()
-            self.__animation('BeingHit', 0.7)
-        sleep(0.1)
+            self.fall = True
+        else:
+            self.hit_s.play()
+            self.__make_fall('BeingHit')
+        sleep(0.15)
 
     def attack(self):
-        return self.punch, self.kick, self.kickh
+        return self.punch, self.kick, self.kickh, self.flykick
 
     def get_health(self):
         return self.health
+
+    def get_flip(self):
+        return self.flip
 
     def stop(self):
         self.speed = 0
@@ -266,6 +335,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += 1
         else:
             self.rect.x -= 1
+
+    def mirror(self):
+        self.__flip_img()
+        self.flip = not self.flip
 
     def go(self):
         self.speed = s.speed
@@ -287,23 +360,35 @@ class Hitbox(pygame.sprite.Sprite):
         self.image.set_alpha(180)
         self.rect = self.image.get_rect()
 
-    def update(self, pos: tuple, w: int = 100, h: int = 80, body: bool = False, kick: bool = False):
+        self.direction = True
+
+    def update(self, pos: tuple, w: int = 100, h: int = 80, **kwargs):
         self.image = pygame.Surface((w, h))
         self.image.fill(self.color)
         self.image.set_alpha(180)
         self.rect = self.image.get_rect()
 
-        if body:
+        if kwargs.get('body', False):
             self.rect.center = pos
-        else:
+        elif self.direction:
             self.rect.topleft = pos
+        elif not self.direction:
+            self.rect.topright = pos
 
-        if kick:
-            self.rect.topleft = pos
-            self.rect.y += 50
+        if kwargs.get('flykick', False):
+            self.rect.y += h
+
+        if kwargs.get('kick', False):
+            self.rect.y += h // 2
 
     def get_pos(self):
-        return self.rect.topleft
+        return self.rect.topleft if self.direction else self.rect.topright
+
+    def get_center_x(self):
+        return self.rect.center[0]
+
+    def set_direction(self):
+        self.direction = not self.direction
 
 
 class Game:
@@ -320,6 +405,7 @@ class Game:
 
         self.body = Hitbox(80, 250)
         self.body2 = Hitbox(80, 250)
+        self.body2.set_direction()
         self.hit = Hitbox(200, 50, 'red')
 
         self.p.add(self.player)
@@ -352,16 +438,20 @@ class Game:
             self.player.update()
             self.player2.update()
             self.player2.block = True
+            # self.player2.control = True
+            # self.player2.punch = True
 
             self.body.update(self.player.get_pos(),
                              self.player.get_width() // 2,
-                             self.player.get_height() // 1.2, body=True)
+                             self.player.get_height() // 1.2,
+                             body=True)
 
             self.body2.update(self.player2.get_pos(),
                               self.player2.get_width() // 2,
-                              self.player2.get_height() // 1.2, True)
+                              self.player2.get_height() // 1.2,
+                              body=True)
 
-            punch, kick, kickh = self.player.attack()
+            punch, kick, kickh, flykick = self.player.attack()
             if punch and self.player.cur_frame() in (1, 2, 5, 7):
                 self.__upd_hit()
                 if bool(pygame.sprite.collide_mask(self.hit, self.body2)):
@@ -382,6 +472,13 @@ class Game:
                     self.player2.get_punch(50)
                     print(self.player2.get_health())
                 print('KickHead', bool(pygame.sprite.collide_mask(self.hit, self.body2)), sep=' - ')
+
+            elif flykick:
+                self.__upd_hit(flykick=flykick)
+                if bool(pygame.sprite.collide_mask(self.hit, self.body2)):
+                    self.player2.get_punch(50, True)
+                    self.player.flykick = self.player.jump_over = False
+
             else:
                 self.hit.kill()
 
@@ -392,15 +489,31 @@ class Game:
                 self.player.go()
                 self.player2.go()
 
+            if self.body.get_center_x() > self.body2.get_center_x() and not self.player.get_flip():
+                self.player.mirror()
+                self.player2.mirror()
+                self.body.set_direction()
+                self.hit.set_direction()
+                self.body2.set_direction()
+
+            elif self.body.get_center_x() < self.body2.get_center_x() and self.player.get_flip():
+                self.player.mirror()
+                self.player2.mirror()
+                self.body.set_direction()
+                self.hit.set_direction()
+                self.body2.set_direction()
+
             self.p.draw(self.screen)
             # self.h.draw(self.screen)
 
             self.clock.tick(30)
             pygame.display.flip()
 
-    def __upd_hit(self, kick: bool = False):
+    def __upd_hit(self, kick: bool = False, flykick: bool = False):
         self.h.add(self.hit)
-        self.hit.update(self.body.get_pos(), self.player.get_width() // 1.3, kick=kick)
+        self.hit.update(self.body.get_pos(),
+                        self.player.get_width() // 1.3,
+                        kick=kick, flykick=flykick)
 
 
 game = Game()
