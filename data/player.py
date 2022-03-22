@@ -155,7 +155,7 @@ class Player(pygame.sprite.Sprite):
 
         elif self.block:
             self.__animation('Block', once=True)
-            self.jump = False
+            self.jump = self.punch = self.kickh = self.kick = False
 
         elif self.fall:
             self.__make_fall()
@@ -291,17 +291,25 @@ class Player(pygame.sprite.Sprite):
 
         if self.__animation(name, 0.5, once=True):
             if name in ('Dead', 'Fall') and time() - self.cooldown > 0.5:
-                print('sd')
                 self.fall = False
                 self.on_floor = True
                 self.new_anim = True
                 self.cooldown = time()
             elif name not in ('Dead', 'Fall'):
                 self.fall = False
+                self.kickh = False
                 self.new_anim = True
         else:
             if name == 'Dead':
-                self.rect.x += 20
+                self.rect.x += 20 if self.flip else -20
+                if self.jumpCount != s.jump:
+                    self.jumpCount = s.jump
+                    self.jump = self.right = self.left = self.kick = False
+                    self.control = True
+
+                if self.rect.y < s.size[1] // 2:
+                    self.rect.y += 25
+                    self.rect.y = s.size[1] // 2
 
     def __stand_up(self):
         if self.new_anim:
@@ -333,7 +341,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.__make_fall('BeingHit')
             self.hit_s.play()
-        sleep(0.15)
+        sleep(0.05)
 
     def attack(self):
         return self.punch, self.kick, self.kickh, self.flykick, self.undercut

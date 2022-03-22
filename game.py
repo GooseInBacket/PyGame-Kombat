@@ -32,8 +32,6 @@ class Game:
         self.background = pygame.transform.scale(img, (w, h))
         self.background_rect = self.background.get_rect()
 
-        self.font = pygame.font.SysFont('arial', 14)
-
     def run(self):
         """
         Запуск основного игрового цикла

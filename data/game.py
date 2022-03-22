@@ -1,17 +1,38 @@
 import pygame
+from pathlib import Path
+from random import randint
 from player import Player
 from hitbox import Hitbox
+from settings import s
+from main_menu import Menu
+from hud import Hud
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((1200, 800))
+        pygame.display.set_caption('MK ALPHA v.1.1')
+        pygame.display.set_icon(pygame.image.load(Path('content', 'props', 'logo.png')))
+
+        self.screen = pygame.display.set_mode(s.size)
         self.clock = pygame.time.Clock()
 
         self.p = pygame.sprite.Group()
         self.h = pygame.sprite.Group()
 
+        img = pygame.image.load(Path('content', 'maps', f'0{randint(1, 3)}.png')).convert()
+        self.background = pygame.transform.scale(img, s.size)
+        self.background_rect = self.background.get_rect()
+
+    def run(self):
+        while True:
+            menu = Menu(self.clock)
+            menu.set_menu(self.screen)
+            menu.choose_your_fighter(self.screen)
+            del menu
+            self.__fight()
+
+    def __fight(self):
         self.player = Player((300, self.screen.get_height() // 2))
         self.player2 = Player((500, self.screen.get_height() // 2), True, True, True)
 
@@ -32,7 +53,6 @@ class Game:
         self.h.add(self.hit)
         self.h.add(self.hit_2)
 
-    def run(self):
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -67,11 +87,10 @@ class Game:
                             self.player2.duck = False
                             self.player2.kickh = False
 
-            self.screen.fill('blue')
+            self.screen.blit(self.background, self.background_rect)
 
             self.player.update()
             self.player2.update()
-            # self.player2.block = True
 
             self.body.update(self.player.get_pos(),
                              self.player.get_width() // 2,
@@ -86,7 +105,8 @@ class Game:
             self.__punch_detected(self.player, self.player2, self.hit, self.body, self.body2)
             self.__punch_detected(self.player2, self.player, self.hit_2, self.body2, self.body)
 
-            self.__connect_detected()
+            self.__collide_detected(self.player)
+            self.__collide_detected(self.player2)
             self.__flip_detected()
 
             self.p.draw(self.screen)
@@ -149,13 +169,16 @@ class Game:
         else:
             hit.kill()
 
-    def __connect_detected(self):
+    def __collide_detected(self, player):
         if pygame.sprite.collide_mask(self.body, self.body2):
-            self.player.stop()
-            self.player2.stop()
+            player.stop()
         else:
-            self.player.go()
-            self.player2.go()
+            player.go()
+
+        if player.rect.x < 0:
+            player.rect.x = 0
+        elif player.rect.x > s.size[0] - player.get_width():
+            player.rect.x = s.size[0] - player.get_width()
 
     def __flip_detected(self):
         if self.body.get_center_x() > self.body2.get_center_x() and not self.player.get_flip():
@@ -175,5 +198,6 @@ class Game:
             self.hit_2.set_direction()
 
 
-game = Game()
-game.run()
+if __name__ == '__main__':
+    game = Game()
+    game.run()

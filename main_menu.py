@@ -128,7 +128,7 @@ class Menu:
         self.sound_1.set_volume(s.get_sound())
         self.sound_2.set_volume(s.get_music())
         pos_list = [[(100, 145), (300, 145), (705, 145), (910, 145)],
-                    [(300, 400), (500, 400), (700, 400)]]
+                    [(305, 400), (505, 400), (708, 400)]]
         fighters = {(100, 145): 'johny',
                     (300, 145): 'kano',
                     (705, 145): 'subzero',
@@ -148,21 +148,25 @@ class Menu:
                     if event.key == pygame.K_DOWN:
                         row = 1
                         current_fighter = 2 if current_fighter > 1 else 0
+
                     elif event.key == pygame.K_UP:
                         row = 0
                         current_fighter = 1 if current_fighter == 0 else current_fighter
+
                     elif event.key == pygame.K_LEFT:
                         current_fighter -= 1
                         if not row and current_fighter < 0:
                             current_fighter = 3
                         elif row and current_fighter < 0:
                             current_fighter = 2
+
                     elif event.key == pygame.K_RIGHT:
                         current_fighter += 1
                         if not row and current_fighter >= 4:
                             current_fighter = 0
                         elif row and current_fighter >= 3:
                             current_fighter = 0
+
                     elif event.key == pygame.K_RETURN:
                         fighter = fighters[pos_list[row][current_fighter]]
                         if color == 'green':
@@ -180,8 +184,9 @@ class Menu:
                     self.sound_1.play()
 
             screen.blit(self.choose_menu, self.choose_menu_rect)
-            a, b = pos_list[row][current_fighter]
-            pygame.draw.rect(screen, color, (a, b, 190, 235), 10, 0)
+            c, r = pos_list[row][current_fighter]
+            pygame.draw.rect(screen, color, (c, r, 190, 240), 10, 0)
+
             pygame.display.flip()
             self.clock.tick(s.fps)
 
