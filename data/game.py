@@ -26,15 +26,17 @@ class Game:
 
     def run(self):
         while True:
-            menu = Menu(self.clock)
-            menu.set_menu(self.screen)
-            menu.choose_your_fighter(self.screen)
-            del menu
+            # menu = Menu(self.clock)
+            # menu.set_menu(self.screen)
+            # menu.choose_your_fighter(self.screen)
+            self.screen.fill('Blue')
+            # del menu
             self.__fight()
 
     def __fight(self):
-        self.player = Player((300, self.screen.get_height() // 2))
-        self.player2 = Player((500, self.screen.get_height() // 2), True, True, True)
+        self.player = Player((250, self.screen.get_height() // 2))
+        self.player2 = Player((s.size[0] - 410, self.screen.get_height() // 2), True, True, True)
+        self.player.control = self.player2.control = False
 
         self.body = Hitbox(80, 250)
         self.body2 = Hitbox(80, 250)
@@ -43,6 +45,8 @@ class Game:
         self.hit = Hitbox(200, 50, 'red')
         self.hit_2 = Hitbox(200, 50, 'red')
         self.hit_2.direction = False
+
+        self.hud = Hud()
 
         self.p.add(self.player)
         self.p.add(self.player2)
@@ -60,7 +64,7 @@ class Game:
 
                 if event.type == pygame.KEYUP:
                     # player 1
-                    if event.key == pygame.K_w:
+                    if event.key == pygame.K_w and self.player.control:
                         self.player.jump = True
                     elif event.key == pygame.K_e:
                         self.player.kick = True
@@ -74,7 +78,7 @@ class Game:
                             self.player.kickh = False
 
                     # player 2
-                    if event.key == pygame.K_UP:
+                    if event.key == pygame.K_UP and self.player2.control:
                         self.player2.jump = True
                     elif event.key == pygame.K_KP1:
                         self.player2.kick = True
@@ -88,6 +92,10 @@ class Game:
                             self.player2.kickh = False
 
             self.screen.blit(self.background, self.background_rect)
+
+            if self.hud.update(self.player.get_health(), self.player2.get_health()):
+                self.player.control = self.player2.control = True
+            self.hud.draw(self.screen)
 
             self.player.update()
             self.player2.update()
@@ -149,7 +157,7 @@ class Game:
         elif cut:
             self.__upd_hit(player, hit, body)
             if bool(pygame.sprite.collide_mask(hit, body_2)):
-                player_2.get_punch(100, cut=True)
+                player_2.get_punch(10, cut=True)
                 self.hit.kill()
                 print(player_2.get_health())
 

@@ -1,10 +1,10 @@
 import pygame
 from random import randint
 from hitbox import Hitbox
-from hud import Hud
+from data.hud import Hud
 from pathlib import Path
 from settings import s
-from main_menu import Menu
+from data.main_menu import Menu
 
 
 class Game:

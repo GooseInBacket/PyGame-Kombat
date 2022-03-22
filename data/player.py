@@ -331,15 +331,15 @@ class Player(pygame.sprite.Sprite):
     def get_punch(self, n: int, **kwargs):
         if self.block:
             self.block_s.play()
-            self.health -= 5
+            self.health -= 2
         else:
             if kwargs.get('crit', False) and not self.block:
-                self.health -= n
                 self.fall = True
             elif kwargs.get('cut', False) and not self.block:
                 self.__make_fall('Fall')
             else:
                 self.__make_fall('BeingHit')
+            self.health -= n
             self.hit_s.play()
         sleep(0.05)
 
