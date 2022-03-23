@@ -17,6 +17,8 @@
 
 ## 2. Демонстрация
 ![Image alt](https://github.com/GooseInBacket/MK/blob/master/data/content/props/demo_1.png)
+![Image alt](https://github.com/GooseInBacket/MK/blob/master/data/content/props/demo_2.png)
+![Image alt](https://github.com/GooseInBacket/MK/blob/master/data/content/props/demo_3.png)
 
 ## 2. Установка:
 ### **!Внимание: В проекте используется Python 3.10!**
