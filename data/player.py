@@ -2,11 +2,12 @@ import pygame
 from os import path, listdir
 from pathlib import Path
 from time import time, sleep
-from settings import s
+from data.settings import s
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos: tuple, flip: bool = False, control: bool = True, player_2: bool = False):
+    def __init__(self, pos: tuple, flip: bool = False, control: bool = True, player_2: bool = False,
+                 name: str = 'subzero'):
         super().__init__()
 
         self.player = player_2
@@ -20,7 +21,7 @@ class Player(pygame.sprite.Sprite):
                          'kickhead': pygame.K_KP3, 'block': pygame.K_KP0}
 
         self.flip = flip
-        self.sprites = self.__create_sprite_list('subzero')
+        self.sprites = self.__create_sprite_list(name)
 
         self.hit_s = pygame.mixer.Sound(Path('11.mp3'))
         self.block_s = pygame.mixer.Sound(Path('mk1-00049.mp3'))
@@ -215,7 +216,7 @@ class Player(pygame.sprite.Sprite):
 
     def __create_sprite_list(self, dir_name: str):
         result = dict()
-        dir_path = path.join(dir_name)
+        dir_path = path.join('characters', dir_name)
         for f in listdir(dir_path):
             folder = path.join(dir_path, f)
             imgs = listdir(folder)

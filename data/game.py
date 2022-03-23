@@ -3,7 +3,7 @@ from pathlib import Path
 from random import randint
 from player import Player
 from hitbox import Hitbox
-from settings import s
+from data.settings import s
 from main_menu import Menu
 from hud import Hud
 
@@ -13,6 +13,9 @@ class Game:
         pygame.init()
         pygame.display.set_caption('MK ALPHA v.1.1')
         pygame.display.set_icon(pygame.image.load(Path('content', 'props', 'logo.png')))
+
+        self.font = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 50)
+        self.pause_text = self.font.render('pause', True, 'white')
 
         self.screen = pygame.display.set_mode(s.size)
         self.clock = pygame.time.Clock()
@@ -26,16 +29,16 @@ class Game:
 
     def run(self):
         while True:
-            # menu = Menu(self.clock)
-            # menu.set_menu(self.screen)
-            # menu.choose_your_fighter(self.screen)
-            self.screen.fill('Blue')
-            # del menu
+            menu = Menu(self.clock)
+            menu.set_menu(self.screen)
+            menu.choose_your_fighter(self.screen)
+            del menu
             self.__fight()
 
     def __fight(self):
-        self.player = Player((250, self.screen.get_height() // 2))
-        self.player2 = Player((s.size[0] - 410, self.screen.get_height() // 2), True, True, True)
+        self.player = Player((250, self.screen.get_height() // 2), name=s.player_1)
+        self.player2 = Player((s.size[0] - 410, self.screen.get_height() // 2), True, True, True,
+                              name=s.player_2)
         self.player.control = self.player2.control = False
 
         self.body = Hitbox(80, 250)
@@ -46,7 +49,7 @@ class Game:
         self.hit_2 = Hitbox(200, 50, 'red')
         self.hit_2.direction = False
 
-        self.hud = Hud()
+        self.hud = Hud(s.player_1, s.player_2)
 
         self.p.add(self.player)
         self.p.add(self.player2)
@@ -56,6 +59,8 @@ class Game:
 
         self.h.add(self.hit)
         self.h.add(self.hit_2)
+
+        self.pause = False
 
         while True:
             for event in pygame.event.get():
@@ -90,6 +95,21 @@ class Game:
                         if self.player2.duck and not self.player2.kickh:
                             self.player2.duck = False
                             self.player2.kickh = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.pause = not self.pause
+
+            if self.pause:
+                pause_screen = pygame.Surface(s.size)
+                pause_screen.fill('#141414')
+                pause_screen.set_alpha(5)
+
+                self.screen.blit(pause_screen, (0, 0))
+                pos = (s.size[0] // 2 - self.pause_text.get_width() // 2, s.size[1] // 2)
+                self.screen.blit(self.pause_text, pos)
+                pygame.display.flip()
+
+                continue
 
             self.screen.blit(self.background, self.background_rect)
 
@@ -118,7 +138,7 @@ class Game:
             self.__flip_detected()
 
             self.p.draw(self.screen)
-            self.h.draw(self.screen)
+            # self.h.draw(self.screen)
 
             self.clock.tick(30)
             pygame.display.flip()

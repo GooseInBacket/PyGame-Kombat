@@ -1,6 +1,6 @@
 import pygame
 from pathlib import Path
-from settings import s
+from data.settings import s
 
 
 class Menu:
@@ -12,7 +12,8 @@ class Menu:
         self.w, self.h = s.size
         self.clock = clock
 
-        self.font_1 = pygame.font.Font(Path('../content', 'font', 'mortalkombat1.ttf'), 80)
+        self.font_1 = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 80)
+        self.font = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 50)
 
         menu = pygame.image.load(Path('content', 'props', '07.png')).convert()
         un_menu = pygame.image.load(Path('content', 'props', '08.png')).convert()
@@ -125,6 +126,7 @@ class Menu:
         :param screen: экран игры
         :return: None
         """
+
         self.sound_1.set_volume(s.get_sound())
         self.sound_2.set_volume(s.get_music())
         pos_list = [[(100, 145), (300, 145), (705, 145), (910, 145)],
@@ -133,9 +135,9 @@ class Menu:
                     (300, 145): 'kano',
                     (705, 145): 'subzero',
                     (910, 145): 'sonya',
-                    (300, 400): 'raiden',
-                    (500, 400): 'lao',
-                    (700, 400): 'scorpion'}
+                    (305, 400): 'raiden',
+                    (505, 400): 'liu kang',
+                    (708, 400): 'scorpion'}
         current_fighter = 0
         row = 0
         color = 'green'
@@ -185,7 +187,10 @@ class Menu:
 
             screen.blit(self.choose_menu, self.choose_menu_rect)
             c, r = pos_list[row][current_fighter]
-            pygame.draw.rect(screen, color, (c, r, 190, 240), 10, 0)
+            rect = pygame.draw.rect(screen, color, (c, r, 190, 240), 10, 0)
+
+            f = self.font.render('1' if color == 'green' else '2', True, color)
+            screen.blit(f, (c + rect.width // 2 - 5, r + rect.height // 1.5, 190, 240))
 
             pygame.display.flip()
             self.clock.tick(s.fps)
@@ -238,6 +243,6 @@ class Menu:
 
     @classmethod
     def play_char(cls, fighter: str):
-        who = pygame.mixer.Sound(Path('../content', 'sound', f'{fighter}.mp3'))
+        who = pygame.mixer.Sound(Path('content', 'sound', f'{fighter}.mp3'))
         who.set_volume(s.get_sound())
         who.play()

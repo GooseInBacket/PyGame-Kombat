@@ -1,5 +1,5 @@
 from game import Game
-from settings import s
+from data.settings import s
 
 if __name__ == '__main__':
     game = Game(*s.size)

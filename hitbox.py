@@ -2,7 +2,7 @@ import pygame
 from os import path, listdir
 from pathlib import Path
 from random import choice
-from settings import s
+from data.settings import s
 from time import time
 
 

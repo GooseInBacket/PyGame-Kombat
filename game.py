@@ -3,7 +3,7 @@ from random import randint
 from hitbox import Hitbox
 from data.hud import Hud
 from pathlib import Path
-from settings import s
+from data.settings import s
 from data.main_menu import Menu
 
 
