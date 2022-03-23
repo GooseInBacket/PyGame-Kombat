@@ -1,4 +1,5 @@
 import pygame
+from random import choice
 from os import path, listdir
 from pathlib import Path
 from time import time, sleep
@@ -23,9 +24,13 @@ class Player(pygame.sprite.Sprite):
         self.flip = flip
         self.sprites = self.__create_sprite_list(name)
 
-        self.hit_s = pygame.mixer.Sound(Path('11.mp3'))
-        self.block_s = pygame.mixer.Sound(Path('mk1-00049.mp3'))
-        self.hit_s.set_volume(s.sound)
+        sound = pygame.mixer.Sound
+        self.hit_s = [sound(Path('content', 'sound', f'{str(i).rjust(2, "0")}.mp3'))
+                      for i in range(5, 13)]
+
+        self.block_s = pygame.mixer.Sound(Path('content', 'sound', 'mk1-00049.mp3'))
+        for i in self.hit_s:
+            i.set_volume(s.get_sound())
         self.block_s.set_volume(s.sound)
 
         if self.flip:
@@ -341,7 +346,7 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.__make_fall('BeingHit')
             self.health -= n
-            self.hit_s.play()
+            choice(self.hit_s).play()
         sleep(0.05)
 
     def attack(self):

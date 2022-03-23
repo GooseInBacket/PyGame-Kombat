@@ -137,7 +137,7 @@ class Game:
             self.__flip_detected()
 
             self.p.draw(self.screen)
-            # self.h.draw(self.screen)
+            self.h.draw(self.screen)
 
             self.clock.tick(30)
             pygame.display.flip()
