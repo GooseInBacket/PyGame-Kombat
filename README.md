@@ -16,8 +16,7 @@
 * По завершению матча возвращает игрока на главный экран по нажатию на Enter
 
 ## 2. Демонстрация
-
-
+![Image alt](https://github.com/GooseInBacket/MK/blob/master/data/content/props/demo_1.png)
 
 ## 2. Установка:
 ### **!Внимание: В проекте используется Python 3.10!**
