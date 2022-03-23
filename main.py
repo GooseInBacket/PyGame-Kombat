@@ -1,6 +1,4 @@
-from game import Game
-from data.settings import s
+from data.game import Game
 
-if __name__ == '__main__':
-    game = Game(*s.size)
-    game.run()
+app = Game()
+app.run()

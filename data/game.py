@@ -1,11 +1,14 @@
 import pygame
+
 from pathlib import Path
 from random import randint
+
 from player import Player
 from hitbox import Hitbox
-from data.settings import s
 from main_menu import Menu
 from hud import Hud
+
+from data.settings import s
 
 
 class Game:
@@ -95,20 +98,13 @@ class Game:
                         if self.player2.duck and not self.player2.kickh:
                             self.player2.duck = False
                             self.player2.kickh = False
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.pause = not self.pause
 
             if self.pause:
-                pause_screen = pygame.Surface(s.size)
-                pause_screen.fill('#141414')
-                pause_screen.set_alpha(5)
-
-                self.screen.blit(pause_screen, (0, 0))
-                pos = (s.size[0] // 2 - self.pause_text.get_width() // 2, s.size[1] // 2)
-                self.screen.blit(self.pause_text, pos)
-                pygame.display.flip()
-
+                self.__pause()
                 continue
 
             self.screen.blit(self.background, self.background_rect)
@@ -116,6 +112,9 @@ class Game:
             if self.hud.update(self.player.get_health(), self.player2.get_health()):
                 self.player.control = self.player2.control = True
             self.hud.draw(self.screen)
+
+            if self.player.get_health() <= 0:
+                pass
 
             self.player.update()
             self.player2.update()
@@ -224,6 +223,16 @@ class Game:
             self.body2.set_direction()
             self.hit.set_direction()
             self.hit_2.set_direction()
+
+    def __pause(self):
+        pause_screen = pygame.Surface(s.size)
+        pause_screen.fill('#141414')
+        pause_screen.set_alpha(5)
+
+        self.screen.blit(pause_screen, (0, 0))
+        pos = (s.size[0] // 2 - self.pause_text.get_width() // 2, s.size[1] // 2)
+        self.screen.blit(self.pause_text, pos)
+        pygame.display.flip()
 
 
 if __name__ == '__main__':
