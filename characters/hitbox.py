@@ -190,7 +190,7 @@ class Hitbox(pygame.sprite.Sprite):
         :return: None
         """
         result = dict()
-        dir_path = path.join('characters', dir_name)
+        dir_path = path.join('', dir_name)
         for f in listdir(dir_path):
             folder = path.join(dir_path, f)
             imgs = listdir(folder)
