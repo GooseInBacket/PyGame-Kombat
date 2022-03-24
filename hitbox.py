@@ -6,10 +6,13 @@ from data.settings import s
 from time import time
 
 
+# ff
+
 class Hitbox(pygame.sprite.Sprite):
     """
     Класс абстрактного игрока
     """
+
     def __init__(self, name: str, x: int, y: int, control: bool = True, flip: bool = False):
         pygame.sprite.Sprite.__init__(self)
         self.spites = self.__create_sprite_list(name)

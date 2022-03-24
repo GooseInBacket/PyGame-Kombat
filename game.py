@@ -7,6 +7,9 @@ from data.settings import s
 from data.main_menu import Menu
 
 
+# ff
+
+
 class Game:
     def __init__(self, w, h):
         self.size = self.w, self.h = w, h
