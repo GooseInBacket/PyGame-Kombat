@@ -32,10 +32,10 @@ class Game:
 
     def run(self):
         while True:
-            menu = Menu(self.clock)
-            menu.set_menu(self.screen)
-            menu.choose_your_fighter(self.screen)
-            del menu
+            # menu = Menu(self.clock)
+            # menu.set_menu(self.screen)
+            # menu.choose_your_fighter(self.screen)
+            # del menu
             self.__fight()
 
     def __fight(self):
@@ -159,33 +159,28 @@ class Game:
         :return:
         """
         punch, kick, kickh, flykick, cut = player.attack()
-        if punch and player.cur_frame() in (1, 2, 5, 7):
+        name = player.name
+
+        if punch:
             self.__upd_hit(player, hit, body)
             if bool(pygame.sprite.collide_mask(hit, body_2)):
-                player_2.get_punch(10)
-                print(player_2.get_health())
-            print('Punch', bool(pygame.sprite.collide_mask(hit, body_2)), sep=' - ')
+                player_2.get_punch(5)
 
-        elif kick and player.cur_frame() == 5:
+        elif kick and (player.cur_frame() in s.get_kick_set(name)):
             self.__upd_hit(player, hit, body, kick=True)
             if bool(pygame.sprite.collide_mask(hit, body_2)):
                 player_2.get_punch(20)
-                print(player_2.get_health())
-            print('Kick', bool(pygame.sprite.collide_mask(hit, body_2)), sep=' - ')
 
         elif cut:
             self.__upd_hit(player, hit, body)
             if bool(pygame.sprite.collide_mask(hit, body_2)):
                 player_2.get_punch(10, cut=True)
                 self.hit.kill()
-                print(player_2.get_health())
 
-        elif kickh and player.cur_frame() in (2, 3):
+        elif kickh and (player.cur_frame() in s.get_kickh_set(name)):
             self.__upd_hit(player, hit, body)
             if bool(pygame.sprite.collide_mask(hit, body_2)):
                 player_2.get_punch(50)
-                print(player_2.get_health())
-            print('KickHead', bool(pygame.sprite.collide_mask(hit, body_2)), sep=' - ')
 
         elif flykick:
             self.__upd_hit(player, hit, body, flykick=flykick)

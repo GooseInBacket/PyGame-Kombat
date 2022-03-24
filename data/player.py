@@ -11,7 +11,9 @@ class Player(pygame.sprite.Sprite):
                  name: str = 'subzero'):
         super().__init__()
 
+        self.name = name
         self.player = player_2
+
         if not self.player:
             self.keys = {'up': pygame.K_w, 'down': pygame.K_s, 'left': pygame.K_a,
                          'right': pygame.K_d, 'punch': pygame.K_q, 'kick': pygame.K_e,
@@ -58,6 +60,9 @@ class Player(pygame.sprite.Sprite):
         self.jumpCount = s.jump
         self.speed = s.speed
         self.health = 1000
+
+        self.punch_anim = 0
+        self.punch_cooldown = 0
 
     def update(self):
         self.__button_pressing()
@@ -241,16 +246,16 @@ class Player(pygame.sprite.Sprite):
                 map(lambda x: pygame.transform.flip(x, True, False), self.sprites[key]))
 
     def __make_punch(self):
+        length = len(self.sprites['Punch'])
         self.jump = False
-        if self.new_anim:
-            self.frameRate = 0
-            self.new_anim = self.kick = self.kickh = False
-            self.cooldown = time()
-        self.__animation('Punch', 0.4)
-        if int(self.frameRate) in (2, 5):
-            if time() - self.cooldown < 0.5:
-                self.punch = self.new_anim = False
-            self.cooldown = time()
+
+        if time() - self.punch_cooldown <= 0.5:
+            self.punch_anim += 0.4
+            self.punch_anim %= length
+            self.__animation('Punch', frame=int(self.punch_anim))
+        else:
+            self.punch_cooldown = time()
+            self.punch = False
 
     def __jump(self):
         self.control = False
@@ -293,18 +298,12 @@ class Player(pygame.sprite.Sprite):
         if self.new_anim:
             self.frameRate = 0
             self.new_anim = False
-            self.cooldown = time()
 
         if self.__animation(name, 0.5, once=True):
-            if name in ('Dead', 'Fall') and time() - self.cooldown > 0.5:
-                self.fall = False
+            if self.jump:
+                self.jump = False
                 self.on_floor = True
-                self.new_anim = True
-                self.cooldown = time()
-            elif name not in ('Dead', 'Fall'):
                 self.fall = False
-                self.kickh = False
-                self.new_anim = True
         else:
             if name == 'Dead':
                 self.rect.x += 20 if self.flip else -20
@@ -316,6 +315,16 @@ class Player(pygame.sprite.Sprite):
                 if self.rect.y < s.size[1] // 2:
                     self.rect.y += 25
                     self.rect.y = s.size[1] // 2
+        #     if name in ('Dead', 'Fall') and time() - self.cooldown > 0.5:
+        #         self.fall = False
+        #         self.on_floor = True
+        #         self.new_anim = True
+        #         self.cooldown = time()
+        #     elif name not in ('Dead', 'Fall'):
+        #         self.fall = False
+        #         self.kickh = False
+        #         self.new_anim = True
+        # else:
 
     def __stand_up(self):
         if self.new_anim:

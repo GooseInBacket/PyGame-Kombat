@@ -12,8 +12,18 @@ class Settings:
         self.width_jump = 8
         self.size_c = 2.5
         self.anim = 0.4
-        self.player_1 = None
-        self.player_2 = None
+        self.player_1 = 'subzero'
+        self.player_2 = 'subzero'
+
+        self.moveset = {
+            'johny': {'punch': (5, 7), 'kick': (3, ), 'kickh': (2, )},
+            'kano': {'punch': (2, 3, 4, 5, 7), 'kick': (4, ), 'kickh': (2, )},
+            'liu kang': {'punch': (2, 5, 7), 'kick': (4, ), 'kickh': (3, )},
+            'raiden': {'punch': (2, 5), 'kick': (3, ), 'kickh': (2, )},
+            'scorpion': {'punch': (1, 2, 5, 7), 'kick': (5, ), 'kickh': (2, 3)},
+            'sonya': {'punch': (2, 5, 6, 7), 'kick': (2, 6), 'kickh': (3, )},
+            'subzero': {'punch': (1, 2, 5, 7), 'kick': (5, ), 'kickh': (2, 3)},
+        }
 
     def set_sound(self, volume: float):
         self.sound = volume
@@ -38,6 +48,15 @@ class Settings:
 
     def get_player2(self):
         return self.player_2
+
+    def get_punch_set(self, name: str) -> tuple:
+        return self.moveset[name]['punch']
+
+    def get_kick_set(self, name: str) -> tuple:
+        return self.moveset[name]['kick']
+
+    def get_kickh_set(self, name: str) -> tuple:
+        return self.moveset[name]['kickh']
 
 
 s = Settings()

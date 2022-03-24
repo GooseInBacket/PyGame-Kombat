@@ -61,7 +61,7 @@ class Hud(pygame.sprite.Sprite):
             self.r_anonce = self.font.render(f'Round {self.round}', True, color)
             self.image.blit(self.r_anonce, (s.size[0] // 2 - self.r_anonce.get_width() // 2, 100))
 
-        if 2 < time() - self.start_round < 2.1 and not pygame.mixer.Channel(0).get_busy():
+        if 2 < time() - self.start_round < 2.1 and not pygame.mixer.Channel(2).get_busy():
             self.fight_anonce.play()
             return True
 
