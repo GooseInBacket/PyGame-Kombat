@@ -15,6 +15,12 @@ class Settings:
         self.player_1 = 'subzero'
         self.player_2 = 'subzero'
 
+        self.win_p_1 = 0
+        self.win_p_2 = 0
+
+        self.round = 1
+        self.fight = True
+
         self.moveset = {
             'johny': {'punch': (5, 7), 'kick': (3, ), 'kickh': (2, )},
             'kano': {'punch': (2, 3, 4, 5, 7), 'kick': (4, ), 'kickh': (2, )},

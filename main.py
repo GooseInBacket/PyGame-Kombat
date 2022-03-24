@@ -1,4 +1,4 @@
-from data.game import Game
+from data.game import run_game
 
-app = Game()
-app.run()
+if __name__ == '__main__':
+    run_game()

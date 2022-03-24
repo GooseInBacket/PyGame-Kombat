@@ -2,11 +2,12 @@ import pygame
 
 from pathlib import Path
 from random import randint
+from time import sleep
 
-from player import Player
-from hitbox import Hitbox
-from main_menu import Menu
-from hud import Hud
+from .player import Player
+from .hitbox import Hitbox
+from .main_menu import Menu
+from .hud import Hud
 
 from data.settings import s
 
@@ -15,9 +16,9 @@ class Game:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption('MK ALPHA v.1.1')
-        pygame.display.set_icon(pygame.image.load(Path('content', 'props', 'logo.png')))
+        pygame.display.set_icon(pygame.image.load(Path('data', 'content', 'props', 'logo.png')))
 
-        self.font = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 50)
+        self.font = pygame.font.Font(Path('data', 'content', 'font', 'mortalkombat1.ttf'), 50)
         self.pause_text = self.font.render('pause', True, 'white')
 
         self.screen = pygame.display.set_mode(s.size)
@@ -26,17 +27,40 @@ class Game:
         self.p = pygame.sprite.Group()
         self.h = pygame.sprite.Group()
 
-        img = pygame.image.load(Path('content', 'maps', f'0{randint(1, 3)}.png')).convert()
+        self.hud = None
+
+        img = pygame.image.load(Path('data', 'content', 'maps', f'0{randint(1, 3)}.png')).convert()
         self.background = pygame.transform.scale(img, s.size)
         self.background_rect = self.background.get_rect()
 
     def run(self):
         while True:
-            # menu = Menu(self.clock)
-            # menu.set_menu(self.screen)
-            # menu.choose_your_fighter(self.screen)
-            # del menu
-            self.__fight()
+            s.win_p_1 = s.win_p_2 = 0
+            s.round = 1
+
+            menu = Menu(self.clock)
+            menu.set_menu(self.screen)
+            menu.choose_your_fighter(self.screen)
+
+            music = pygame.mixer.Sound(Path('data', 'content', 'sound', '03.mp3'))
+            music.set_volume(s.get_music())
+            music.play(-1)
+            while s.win_p_1 != 2 and s.win_p_2 != 2:
+                s.fight = True
+                self.__fight()
+                self.p.empty()
+                self.h.empty()
+                self.hud = None
+
+            if s.win_p_1 == 2:
+                win_s = pygame.mixer.Sound(Path('data', 'content', 'sound', f'{s.player_1}win.mp3'))
+            else:
+                win_s = pygame.mixer.Sound(Path('data', 'content', 'sound', f'{s.player_2}win.mp3'))
+            win_s.set_volume(s.sound)
+
+            music.stop()
+            win_s.play()
+            sleep(2)
 
     def __fight(self):
         self.player = Player((250, self.screen.get_height() // 2), name=s.player_1)
@@ -65,7 +89,7 @@ class Game:
 
         self.pause = False
 
-        while True:
+        while s.fight:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     exit()
@@ -107,6 +131,18 @@ class Game:
                 self.__pause()
                 continue
 
+            if self.player.get_health() <= 0:
+                self.player.control = False
+                self.player2.control = False
+                self.player2.win = True
+                self.player.dead = True
+
+            if self.player2.get_health() <= 0:
+                self.player.control = False
+                self.player2.control = False
+                self.player.win = True
+                self.player2.dead = True
+
             self.screen.blit(self.background, self.background_rect)
 
             if self.hud.update(self.player.get_health(), self.player2.get_health()):
@@ -141,6 +177,14 @@ class Game:
 
             self.clock.tick(30)
             pygame.display.flip()
+
+        s.round += 1
+        if self.player.get_health() <= 0:
+            s.win_p_2 += 1
+        elif self.player2.get_health() <= 0:
+            s.win_p_1 += 1
+        sleep(1)
+        return
 
     def __upd_hit(self, player, hit, body, **kwargs):
         self.h.add(hit)
@@ -230,6 +274,6 @@ class Game:
         pygame.display.flip()
 
 
-if __name__ == '__main__':
+def run_game():
     game = Game()
     game.run()

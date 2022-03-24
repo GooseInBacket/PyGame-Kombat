@@ -12,12 +12,12 @@ class Menu:
         self.w, self.h = s.size
         self.clock = clock
 
-        self.font_1 = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 80)
-        self.font = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 50)
+        self.font_1 = pygame.font.Font(Path('data', 'content', 'font', 'mortalkombat1.ttf'), 80)
+        self.font = pygame.font.Font(Path('data', 'content', 'font', 'mortalkombat1.ttf'), 50)
 
-        menu = pygame.image.load(Path('content', 'props', '07.png')).convert()
-        un_menu = pygame.image.load(Path('content', 'props', '08.png')).convert()
-        choose = pygame.image.load(Path('content', 'props', '02.png')).convert()
+        menu = pygame.image.load(Path('data', 'content', 'props', '07.png')).convert()
+        un_menu = pygame.image.load(Path('data', 'content', 'props', '08.png')).convert()
+        choose = pygame.image.load(Path('data', 'content', 'props', '02.png')).convert()
 
         self.un_main_menu = pygame.transform.scale(un_menu, (self.w, self.h * 3))
         self.un_main_menu_rect = self.un_main_menu.get_rect()
@@ -30,8 +30,8 @@ class Menu:
         self.choose_menu = pygame.transform.scale(choose, (self.w, self.h))
         self.choose_menu_rect = self.choose_menu.get_rect()
 
-        self.sound_1 = pygame.mixer.Sound(Path('content', 'sound', '01.mp3'))
-        self.sound_2 = pygame.mixer.Sound(Path('content', 'sound', '02.mp3'))
+        self.sound_1 = pygame.mixer.Sound(Path('data', 'content', 'sound', '01.mp3'))
+        self.sound_2 = pygame.mixer.Sound(Path('data', 'content', 'sound', '02.mp3'))
 
         self.sound_1.set_volume(s.get_sound())
         self.sound_2.set_volume(s.get_music())
@@ -243,6 +243,6 @@ class Menu:
 
     @classmethod
     def play_char(cls, fighter: str):
-        who = pygame.mixer.Sound(Path('content', 'sound', f'{fighter}.mp3'))
+        who = pygame.mixer.Sound(Path('data', 'content', 'sound', f'{fighter}.mp3'))
         who.set_volume(s.get_sound())
         who.play()

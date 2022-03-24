@@ -18,19 +18,19 @@ class Hud(pygame.sprite.Sprite):
         self.start_round = time()
         self.start_time = time()
         self.timer = 90
-        self.round = 1
+        self.round = s.round
 
-        self.font = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 65)
-        self.font_names = pygame.font.Font(Path('content', 'font', 'mortalkombat1.ttf'), 40)
+        self.font = pygame.font.Font(Path('data', 'content', 'font', 'mortalkombat1.ttf'), 65)
+        self.font_names = pygame.font.Font(Path('data', 'content', 'font', 'mortalkombat1.ttf'), 40)
         self.time_count = self.font.render(f'{self.timer}'.rjust(2, '0'), True, 'white')
         self.time_count_s = self.font.render(f'{self.timer}'.rjust(2, '0'), True, '#141414')
         self.r_anonce = self.font.render(f'Round {self.round}', True, 'white')
 
-        self.music = pygame.mixer.Sound(Path('content', 'sound', '03.mp3'))
-        self.fight_anonce = pygame.mixer.Sound(Path('content', 'sound', '04.mp3'))
+        self.medal = pygame.image.load(Path('data', 'content', 'props', '06.gif')).convert()
+        self.medal = pygame.transform.scale(self.medal, (30, 30))
+
+        self.fight_anonce = pygame.mixer.Sound(Path('data', 'content', 'sound', '04.mp3'))
         self.fight_anonce.set_volume(s.get_sound())
-        self.music.set_volume(s.get_music())
-        self.music.play(-1)
 
         self.name_1 = self.font_names.render(name_1, True, '#ffff00')
         self.name_2 = self.font_names.render(name_2, True, '#ffff00')
@@ -88,6 +88,14 @@ class Hud(pygame.sprite.Sprite):
         pygame.draw.rect(self.image, '#ffff00', pos_2, 5, 1)
 
         pos = (s.size[0] // 2 - self.time_count.get_width() // 2 + 5, 15)
+
+        if s.win_p_1:
+            for i in range(s.win_p_1):
+                self.image.blit(self.medal, (10 + 10 * i, 60))
+        if s.win_p_2:
+            for i in range(s.win_p_2):
+                self.image.blit(self.medal, ((s.size[0] - self.medal.get_width() - 15) - 10 * i, 60))
+
         self.image.blit(self.time_count_s, pos)
         self.image.blit(self.time_count, (s.size[0] // 2 - self.time_count.get_width() // 2, 10))
         self.image.blit(self.name_1, (20, 8))

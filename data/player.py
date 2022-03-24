@@ -27,10 +27,10 @@ class Player(pygame.sprite.Sprite):
         self.sprites = self.__create_sprite_list(name)
 
         sound = pygame.mixer.Sound
-        self.hit_s = [sound(Path('content', 'sound', f'{str(i).rjust(2, "0")}.mp3'))
+        self.hit_s = [sound(Path('data', 'content', 'sound', f'{str(i).rjust(2, "0")}.mp3'))
                       for i in range(5, 13)]
 
-        self.block_s = pygame.mixer.Sound(Path('content', 'sound', 'mk1-00049.mp3'))
+        self.block_s = pygame.mixer.Sound(Path('data', 'content', 'sound', 'mk1-00049.mp3'))
         for i in self.hit_s:
             i.set_volume(s.get_sound())
         self.block_s.set_volume(s.sound)
@@ -55,6 +55,8 @@ class Player(pygame.sprite.Sprite):
         self.__upd_state()
 
         self.fall = False
+        self.dead = False
+        self.win = False
 
         self.cooldown = 0
         self.jumpCount = s.jump
@@ -63,12 +65,15 @@ class Player(pygame.sprite.Sprite):
 
         self.punch_anim = 0
         self.punch_cooldown = 0
+        self.t = 0
+        self.flag = True
 
     def update(self):
         self.__button_pressing()
         self.__reactions()
 
     def __upd_state(self):
+        self.dead = False
         self.fall = False
         self.stay = True
         self.block = False
@@ -120,7 +125,23 @@ class Player(pygame.sprite.Sprite):
             self.block = False
 
     def __reactions(self):
-        if self.duck:
+        if self.win:
+            self.__upd_state()
+            if self.__animation('Win', once=True):
+                if self.flag:
+                    self.t = time()
+                    self.flag = False
+                if time() - self.t > 2:
+                    s.fight = False
+            self.rect.y = 400
+
+        elif self.dead:
+            self.__make_fall()
+
+        elif self.fall:
+            self.__make_fall('Fall')
+
+        elif self.duck:
             if self.kickh:
                 if self.new_anim:
                     self.frameRate = 0
@@ -168,12 +189,6 @@ class Player(pygame.sprite.Sprite):
             self.__animation('Block', once=True)
             self.jump = self.punch = self.kickh = self.kick = False
 
-        elif self.fall:
-            self.__make_fall()
-
-        elif self.on_floor:
-            self.__stand_up()
-
         elif self.jump:
             self.__jump()
 
@@ -208,7 +223,8 @@ class Player(pygame.sprite.Sprite):
             count = -int(self.frameRate) if reverse else int(
                 self.frameRate) if frame is None else frame
 
-        self.frame = self.sprites[anim][count]
+        self.frame = self.sprites[anim][
+            length - 1 if once and int(self.frameRate) == length - 1 else count]
         self.image = pygame.Surface((self.frame.get_width(), self.frame.get_height()))
         self.rect = self.image.get_rect()
 
@@ -226,7 +242,7 @@ class Player(pygame.sprite.Sprite):
 
     def __create_sprite_list(self, dir_name: str):
         result = dict()
-        dir_path = path.join('characters', dir_name)
+        dir_path = path.join('data', 'characters', dir_name)
         for f in listdir(dir_path):
             folder = path.join(dir_path, f)
             imgs = listdir(folder)
@@ -294,16 +310,18 @@ class Player(pygame.sprite.Sprite):
             self.control = True
 
     def __make_fall(self, name: str = 'Dead'):
-        print(self.new_anim)
         if self.new_anim:
             self.frameRate = 0
             self.new_anim = False
 
         if self.__animation(name, 0.5, once=True):
-            if self.jump:
+            self.punch = self.kick = self.kickh = False
+            if self.jump or self.jump_over or self.duck or self.left or self.right:
                 self.jump = False
                 self.on_floor = True
+                self.dead = False
                 self.fall = False
+                self.control = True
         else:
             if name == 'Dead':
                 self.rect.x += 20 if self.flip else -20
@@ -315,16 +333,6 @@ class Player(pygame.sprite.Sprite):
                 if self.rect.y < s.size[1] // 2:
                     self.rect.y += 25
                     self.rect.y = s.size[1] // 2
-        #     if name in ('Dead', 'Fall') and time() - self.cooldown > 0.5:
-        #         self.fall = False
-        #         self.on_floor = True
-        #         self.new_anim = True
-        #         self.cooldown = time()
-        #     elif name not in ('Dead', 'Fall'):
-        #         self.fall = False
-        #         self.kickh = False
-        #         self.new_anim = True
-        # else:
 
     def __stand_up(self):
         if self.new_anim:
@@ -349,9 +357,9 @@ class Player(pygame.sprite.Sprite):
             self.health -= 2
         else:
             if kwargs.get('crit', False) and not self.block:
-                self.fall = True
+                self.dead = True
             elif kwargs.get('cut', False) and not self.block:
-                self.__make_fall('Fall')
+                self.fall = True
             else:
                 self.__make_fall('BeingHit')
             self.health -= n
