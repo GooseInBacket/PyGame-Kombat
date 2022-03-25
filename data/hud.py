@@ -39,7 +39,7 @@ class Hud(pygame.sprite.Sprite):
         self.width_2 = s.size[0] // 2.5
         self.start = 10
 
-    def update(self, health_1, health_2):
+    def update(self, health_1: int, health_2: int) -> bool:
         self.width_1 = int(480 * (health_1 / 1000))
         self.width_2 = int(480 * (health_2 / 1000))
         if time() - self.start_round > 3:
@@ -65,7 +65,7 @@ class Hud(pygame.sprite.Sprite):
             self.fight_anonce.play()
             return True
 
-    def draw(self, surface):
+    def draw(self, surface) -> None:
         surface.blit(self.image, (0, 0))
 
         self.image = pygame.Surface((s.size[0], s.size[1] // 5))

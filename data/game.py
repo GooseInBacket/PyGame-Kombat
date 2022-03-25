@@ -33,7 +33,8 @@ class Game:
         self.background = pygame.transform.scale(img, s.size)
         self.background_rect = self.background.get_rect()
 
-    def run(self):
+    def run(self) -> None:
+        """run game func"""
         while True:
             s.win_p_1 = s.win_p_2 = 0
             s.round = 1
@@ -62,7 +63,8 @@ class Game:
             win_s.play()
             sleep(2)
 
-    def __fight(self):
+    def __fight(self) -> None:
+        """fight round func"""
         self.player = Player((250, self.screen.get_height() // 2), name=s.player_1)
         self.player2 = Player((s.size[0] - 410, self.screen.get_height() // 2), True, True, True,
                               name=s.player_2)
@@ -186,21 +188,23 @@ class Game:
         sleep(1)
         return
 
-    def __upd_hit(self, player, hit, body, **kwargs):
+    def __upd_hit(self, player, hit, body, **kwargs) -> None:
+        """updates hitbox hit"""
         self.h.add(hit)
         hit.update(body.get_pos(),
                    player.get_width() // 1.3,
                    kick=kwargs.get('kick', False), flykick=kwargs.get('flykick', False))
 
-    def __punch_detected(self, player, player_2, hit, body, body_2):
+    def __punch_detected(self, player: Player, player_2: Player,
+                         hit: Hitbox, body: Hitbox, body_2: Hitbox) -> None:
         """
 
-        :param player: модель игрока 1
-        :param player_2: модель игрока 2
-        :param hit:
-        :param body: хитбокс тела игрока 1
-        :param body_2: хитбокс игрока 2
-        :return:
+        :param player: models player 1
+        :param player_2: models player 2
+        :param hit: hitbox hit player 1
+        :param body: hitbox body player 1
+        :param body_2: hitbox body player 2
+        :return: None
         """
         punch, kick, kickh, flykick, cut = player.attack()
         name = player.name
@@ -235,7 +239,8 @@ class Game:
         else:
             hit.kill()
 
-    def __collide_detected(self, player):
+    def __collide_detected(self, player: Player) -> None:
+        """Tracks the touch of two players"""
         if pygame.sprite.collide_mask(self.body, self.body2):
             player.stop()
         else:
@@ -246,7 +251,8 @@ class Game:
         elif player.rect.x > s.size[0] - player.get_width():
             player.rect.x = s.size[0] - player.get_width()
 
-    def __flip_detected(self):
+    def __flip_detected(self) -> None:
+        """Tracking the turn of the player model"""
         if self.body.get_center_x() > self.body2.get_center_x() and not self.player.get_flip():
             self.player.mirror()
             self.player2.mirror()
@@ -263,7 +269,8 @@ class Game:
             self.hit.set_direction()
             self.hit_2.set_direction()
 
-    def __pause(self):
+    def __pause(self) -> None:
+        """pause func"""
         pause_screen = pygame.Surface(s.size)
         pause_screen.fill('#141414')
         pause_screen.set_alpha(5)
@@ -274,6 +281,7 @@ class Game:
         pygame.display.flip()
 
 
-def run_game():
+def run_game() -> None:
+    """Run Game func"""
     game = Game()
     game.run()

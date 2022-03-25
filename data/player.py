@@ -9,6 +9,14 @@ from data.settings import s
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos: tuple, flip: bool = False, control: bool = True, player_2: bool = False,
                  name: str = 'subzero'):
+        """
+        Game character model
+        :param pos: The position of the player on the game canvas
+        :param flip: Character reflected
+        :param control: Have character control
+        :param player_2: Is this the second player?
+        :param name: Model name
+        """
         super().__init__()
 
         self.name = name
@@ -68,11 +76,13 @@ class Player(pygame.sprite.Sprite):
         self.t = 0
         self.flag = True
 
-    def update(self):
+    def update(self) -> None:
+        """Tracks button presses and click responses"""
         self.__button_pressing()
         self.__reactions()
 
-    def __upd_state(self):
+    def __upd_state(self) -> None:
+        """Обновляет основные переменные"""
         self.dead = False
         self.fall = False
         self.stay = True
@@ -89,7 +99,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_over = False
         self.undercut = False
 
-    def __button_pressing(self):
+    def __button_pressing(self) -> None:
         keys = pygame.key.get_pressed()
 
         if keys[self.keys['up']] and keys[self.keys['right']] and self.control:
@@ -124,7 +134,7 @@ class Player(pygame.sprite.Sprite):
         if not keys[self.keys['block']] and self.control:
             self.block = False
 
-    def __reactions(self):
+    def __reactions(self) -> None:
         if self.win:
             self.__upd_state()
             if self.__animation('Win', once=True):
@@ -207,7 +217,16 @@ class Player(pygame.sprite.Sprite):
             self.__animation('Fighting Stance', 0.4)
 
     def __animation(self, anim: str, speed: int | float = 0.4, once: bool = False,
-                    reverse: bool = False, frame: int = None):
+                    reverse: bool = False, frame: int = None) -> bool:
+        """
+        Sprite animation function
+        :param anim: name animation in sprite list
+        :param speed: speed animation
+        :param once: play animation once
+        :param reverse: flip animation
+        :param frame: run specific frame
+        :return: bool
+        """
         length = len(self.sprites[anim])
         if once and int(self.frameRate) == length - 1:
             return True
@@ -240,7 +259,7 @@ class Player(pygame.sprite.Sprite):
         if int(self.frameRate) == length - 1:
             return True
 
-    def __create_sprite_list(self, dir_name: str):
+    def __create_sprite_list(self, dir_name: str) -> dict:
         result = dict()
         dir_path = path.join('data', 'characters', dir_name)
         for f in listdir(dir_path):
@@ -261,7 +280,7 @@ class Player(pygame.sprite.Sprite):
             self.sprites[key] = list(
                 map(lambda x: pygame.transform.flip(x, True, False), self.sprites[key]))
 
-    def __make_punch(self):
+    def __make_punch(self) -> None:
         length = len(self.sprites['Punch'])
         self.jump = False
 
@@ -273,7 +292,7 @@ class Player(pygame.sprite.Sprite):
             self.punch_cooldown = time()
             self.punch = False
 
-    def __jump(self):
+    def __jump(self) -> None:
         self.control = False
         if self.jumpCount >= -s.jump:
             self.jump = True
@@ -286,7 +305,7 @@ class Player(pygame.sprite.Sprite):
             self.jumpCount = s.jump
             self.control = True
 
-    def __jump_over(self, reverse: bool = False):
+    def __jump_over(self, reverse: bool = False) -> None:
         self.control = False
         if self.jumpCount >= -s.jump:
             self.jump_over = True
@@ -309,7 +328,8 @@ class Player(pygame.sprite.Sprite):
             self.cooldown = time()
             self.control = True
 
-    def __make_fall(self, name: str = 'Dead'):
+    def __make_fall(self, name: str = 'Dead') -> None:
+        """fall/death animation"""
         if self.new_anim:
             self.frameRate = 0
             self.new_anim = False
@@ -334,24 +354,16 @@ class Player(pygame.sprite.Sprite):
                     self.rect.y += 25
                     self.rect.y = s.size[1] // 2
 
-    def __stand_up(self):
-        if self.new_anim:
-            self.frameRate = 0
-            self.new_anim = False
-        if self.__animation('Up', 0.5, once=True):
-            self.on_floor = False
-            self.new_anim = True
-
-    def get_pos(self):
+    def get_pos(self) -> tuple:
         return self.rect.center
 
-    def get_width(self):
+    def get_width(self) -> int:
         return self.image.get_width()
 
-    def get_height(self):
+    def get_height(self) -> int:
         return self.image.get_height()
 
-    def get_punch(self, n: int, **kwargs):
+    def get_punch(self, n: int, **kwargs) -> None:
         if self.block:
             self.block_s.play()
             self.health -= 2
@@ -366,28 +378,32 @@ class Player(pygame.sprite.Sprite):
             choice(self.hit_s).play()
         sleep(0.05)
 
-    def attack(self):
+    def attack(self) -> tuple:
         return self.punch, self.kick, self.kickh, self.flykick, self.undercut
 
-    def get_health(self):
+    def get_health(self) -> int:
         return self.health
 
-    def get_flip(self):
+    def get_flip(self) -> bool:
         return self.flip
 
-    def stop(self):
+    def stop(self) -> None:
+        """Stop character when touching another character"""
         self.speed = 0
         if self.flip:
             self.rect.x += 1
         else:
             self.rect.x -= 1
 
-    def mirror(self):
+    def mirror(self) -> None:
+        """Reflect character model"""
         self.__flip_img()
         self.flip = not self.flip
 
-    def go(self):
+    def go(self) -> None:
+        """Возобновить движение персонажа"""
         self.speed = s.speed
 
-    def cur_frame(self):
+    def cur_frame(self) -> int:
+        """current animation frame"""
         return int(self.frameRate)

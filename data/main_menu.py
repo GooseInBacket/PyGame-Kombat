@@ -6,8 +6,8 @@ from data.settings import s
 class Menu:
     def __init__(self, clock: pygame.time.Clock):
         """
-        Класс реализует работу главного меню игры
-        :param clock: счётчик FPS
+        The class implements the work of the main menu of the game
+        :param clock: FPS counter
         """
         self.w, self.h = s.size
         self.clock = clock
@@ -47,8 +47,8 @@ class Menu:
 
     def set_menu(self, screen: pygame.display) -> None:
         """
-        Отрисовывает главное меню на экране -> (Турнир, Настройки)
-        :param screen: экран игры
+        Draws the main menu on the screen -> (Tournament, Settings)
+        :param screen: game screen
         :return: None
         """
         while self.menu:
@@ -122,8 +122,8 @@ class Menu:
 
     def choose_your_fighter(self, screen: pygame.display) -> None:
         """
-        Отрисовывает меню выбора персонажей
-        :param screen: экран игры
+        Draws the character selection menu
+        :param screen: game screen
         :return: None
         """
 
@@ -197,12 +197,12 @@ class Menu:
 
     def draw_button(self, screen, text: str, y: float, click: bool = False, anim: int = 4) -> None:
         """
-        Отрисовывает кнопку "пункт меню"
-        :param screen: экран игры
-        :param text: текст кнопки
-        :param y: позиция кнопки по оси Y
-        :param click: кликабальна?
-        :param anim: анимирована?
+        Renders a menu item button
+        :param screen: game screen
+        :param text: button text
+        :param y: button Y position
+        :param click: is clicked?
+        :param anim: is animated?
         :return: None
         """
         c1, c2 = ('white', 'grey') if click else ('green', 'white')
@@ -215,7 +215,7 @@ class Menu:
 
     def set_title(self, screen, text: str) -> None:
         """
-        Задаёт заголовок главного экрана игры
+        Title main screen
         :param screen: экран игры
         :param text: текст заголовка
         :return: None
@@ -228,9 +228,9 @@ class Menu:
 
     def set_background(self, screen, anim: int = 5) -> None:
         """
-        Задаёт задний фон главного меню игры
-        :param screen: экран игры
-        :param anim: анимированный?
+        Background main menu
+        :param screen: game screen
+        :param anim: is animated?
         :return: None
         """
         if self.un_main_menu_rect.y > 0:
@@ -242,7 +242,8 @@ class Menu:
         self.un_main_menu_rect.y += anim
 
     @classmethod
-    def play_char(cls, fighter: str):
+    def play_char(cls, fighter: str) -> None:
+        """Playable Character Announcement"""
         who = pygame.mixer.Sound(Path('data', 'content', 'sound', f'{fighter}.mp3'))
         who.set_volume(s.get_sound())
         who.play()

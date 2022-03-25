@@ -16,7 +16,7 @@ class Hitbox(pygame.sprite.Sprite):
 
         self.direction = True
 
-    def update(self, pos: tuple, w: int = 100, h: int = 80, **kwargs):
+    def update(self, pos: tuple, w: int = 100, h: int = 80, **kwargs) -> None:
         self.image = pygame.Surface((w, h))
         self.image.fill(self.color)
         self.image.set_alpha(180)
@@ -35,12 +35,12 @@ class Hitbox(pygame.sprite.Sprite):
         if kwargs.get('kick', False):
             self.rect.y += h // 2
 
-    def get_pos(self):
+    def get_pos(self) -> tuple:
         return self.rect.topleft if self.direction else self.rect.topright
 
-    def get_center_x(self):
+    def get_center_x(self) -> int:
         return self.rect.center[0]
 
-    def set_direction(self):
+    def set_direction(self) -> None:
         self.direction = not self.direction
 
