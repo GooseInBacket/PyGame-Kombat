@@ -1,4 +1,5 @@
 import pygame
+import sys
 
 from pathlib import Path
 from random import randint
@@ -94,7 +95,7 @@ class Game:
         while s.fight:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    exit()
+                    sys.exit()
 
                 if event.type == pygame.KEYUP:
                     # player 1

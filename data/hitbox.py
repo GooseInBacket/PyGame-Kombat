@@ -16,7 +16,7 @@ class Hitbox(pygame.sprite.Sprite):
 
         self.direction = True
 
-    def update(self, pos: tuple, w: int = 100, h: int = 80, **kwargs) -> None:
+    def update(self, pos: tuple, w: int = 100, h: int | float = 80, **kwargs) -> None:
         self.image = pygame.Surface((w, h))
         self.image.fill(self.color)
         self.image.set_alpha(180)
@@ -43,4 +43,3 @@ class Hitbox(pygame.sprite.Sprite):
 
     def set_direction(self) -> None:
         self.direction = not self.direction
-
